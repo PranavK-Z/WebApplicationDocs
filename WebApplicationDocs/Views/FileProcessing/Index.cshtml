@@ -1,0 +1,42 @@
+﻿@model WebApplicationDocs.Models.FileProcessingModel
+
+@{
+    ViewBag.Title = "File Processing";
+}
+
+<h2>File Processing</h2>
+
+@if (ViewBag.Message != null)
+{
+    <p style="color: green;">@ViewBag.Message</p>
+}
+
+@using (Html.BeginForm("ProcessFile", "FileProcessing", FormMethod.Post))
+{
+    <div>
+        @Html.LabelFor(m => m.ClientId)
+        @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.DocumentType)
+        @Html.TextBoxFor(m => m.DocumentType, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.SourcePath)
+        @Html.TextBoxFor(m => m.SourcePath, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.DestPath)
+        @Html.TextBoxFor(m => m.DestPath, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.ReplacementSuffix)
+        @Html.TextBoxFor(m => m.ReplacementSuffix, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.PaymentFileNum)
+        @Html.TextBoxFor(m => m.PaymentFileNum, new { @class = "form-control", type = "number" })
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Process</button>
+}
