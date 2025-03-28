@@ -11,7 +11,7 @@
     <p style="color: green;">@ViewBag.Message</p>
 }
 
-@using (Html.BeginForm("ProcessFile", "FileProcessing", FormMethod.Post))
+@using (Html.BeginForm("ProcessFile", "FileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div>
         @Html.LabelFor(m => m.ClientId)
@@ -36,6 +36,10 @@
     <div>
         @Html.LabelFor(m => m.PaymentFileNum)
         @Html.TextBoxFor(m => m.PaymentFileNum, new { @class = "form-control", type = "number" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.ExcelFile)
+        <input type="file" name="ExcelFile" class="form-control" />
     </div>
     <br />
     <button type="submit" class="btn btn-primary">Process</button>

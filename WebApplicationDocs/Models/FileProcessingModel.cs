@@ -24,5 +24,9 @@ namespace WebApplicationDocs.Models
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Enter a valid number of Payment Files.")]
         public int PaymentFileNum { get; set; }
+
+
+        [Required(ErrorMessage = "Please upload an Excel file.")]
+        public IFormFile ExcelFile { get; set; }
     }
 }

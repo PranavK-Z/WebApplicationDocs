@@ -22,12 +22,24 @@ namespace WebApplicationDocs.Controllers
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.Message = "Provided input is invalid.";
                 return View("Index", model);
             }
 
             try
             {
-                string excelPath = "E:\\Automation\\Excel\\Demo Tin Numbers.xlsx";
+                string excelPath = Path.Combine(Path.GetTempPath(), model.ExcelFile.FileName);
+                using (var stream = new FileStream(excelPath, FileMode.Create))
+                {
+                    model.ExcelFile.CopyTo(stream);
+                }
+
+                if (!System.IO.File.Exists(excelPath))
+                {
+                    ViewBag.Message = "Invalid Excel file.";
+                    return View("Index", model);
+                }
+
                 Directory.CreateDirectory(model.DestPath);
 
                 string[] zipFiles = Directory.GetFiles(model.SourcePath, $"{model.ClientId}*.zip");
@@ -59,10 +71,12 @@ namespace WebApplicationDocs.Controllers
                     string[] firstLineContent = lines[0].Split("\t");
                     string filesDocumentType = firstLineContent[22];
 
-                    if (filesDocumentType == model.DocumentType)
+                    int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19));
+
+                    if (filesDocumentType == model.DocumentType && FilePaymentCount + 1 >= model.PaymentFileNum)
                     {
                         validFile = unZippedFiles[0];
-                        ProcessFile(validFile, tinNumbers, unzipDir, model.DestPath, model.PaymentFileNum,model.ReplacementSuffix);
+                        ProcessFile(validFile, tinNumbers, unzipDir, model.DestPath, model.PaymentFileNum, model.ReplacementSuffix);
                         break;
                     }
                     Directory.Delete(unzipDir, true);
@@ -151,20 +165,27 @@ namespace WebApplicationDocs.Controllers
         {
             List<string> tinNumbers = new List<string>();
 
-            if (!System.IO.File.Exists(excelPath)) return tinNumbers;
-
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage(new System.IO.FileInfo(excelPath)))
+            try
             {
-                var worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension.Rows;
+                if (!System.IO.File.Exists(excelPath)) return tinNumbers;
 
-                for (int row = 2; row <= rowCount; row++)
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(new System.IO.FileInfo(excelPath)))
                 {
-                    string tin = worksheet.Cells[row, 1].Text.Trim();
-                    if (!string.IsNullOrEmpty(tin))
-                        tinNumbers.Add(tin);
+                    var worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 1; row <= rowCount; row++)
+                    {
+                        string tin = worksheet.Cells[row, 1].Text.Trim();
+                        if (!string.IsNullOrEmpty(tin))
+                            tinNumbers.Add(tin);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = "Error reading Excel file: " + ex.Message;
             }
 
             return tinNumbers;
