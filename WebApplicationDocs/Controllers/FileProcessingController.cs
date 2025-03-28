@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using WebApplicationDocs.Models;
 
 
@@ -86,10 +87,7 @@ namespace WebApplicationDocs.Controllers
                 {
                     ViewBag.Message = $"{model.ClientId} Files with document type {model.DocumentType} not found.";
                 }
-                else
-                {
-                    ViewBag.Message = "File processed successfully!";
-                }
+              
             }
             catch (Exception ex)
             {
@@ -110,6 +108,12 @@ namespace WebApplicationDocs.Controllers
             int tinIndex = -1;
             int paymentFileCount = 0;
             bool eraseMode = false;
+
+            if (tinNumbers.Count < paymentFileNum)
+            {
+                ViewBag.Message = "Provided Excel file has TIn Numbers less than the given paymentFileNum ";
+                return;//////
+            }
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -159,6 +163,8 @@ namespace WebApplicationDocs.Controllers
             ZipFile.CreateFromDirectory(unzipDir, newZipFile);
 
             Directory.Delete(unzipDir, true);
+            ViewBag.Message = "File processed successfully!";
+            //viewbag
         }
 
         private List<string> ReadTinNumbersFromExcel(string excelPath)
@@ -173,7 +179,9 @@ namespace WebApplicationDocs.Controllers
                 using (var package = new ExcelPackage(new System.IO.FileInfo(excelPath)))
                 {
                     var worksheet = package.Workbook.Worksheets[0];
+                    if (worksheet.Dimension == null) return tinNumbers;
                     int rowCount = worksheet.Dimension.Rows;
+
 
                     for (int row = 1; row <= rowCount; row++)
                     {
