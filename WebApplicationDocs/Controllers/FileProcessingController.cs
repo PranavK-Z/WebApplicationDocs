@@ -101,7 +101,6 @@ namespace WebApplicationDocs.Controllers
         {
             string[] lines = System.IO.File.ReadAllLines(filePath);
             string currentDate = DateTime.Now.ToString("yyyyMMdd");
-            //string replacementSuffix = "P3";
 
             List<string> updatedLines = new List<string>();
             string newText = "";
@@ -112,7 +111,7 @@ namespace WebApplicationDocs.Controllers
             if (tinNumbers.Count < paymentFileNum)
             {
                 ViewBag.Message = "Provided Excel file has TIn Numbers less than the given paymentFileNum ";
-                return;//////
+                return;
             }
 
             for (int i = 0; i < lines.Length; i++)
@@ -164,7 +163,6 @@ namespace WebApplicationDocs.Controllers
 
             Directory.Delete(unzipDir, true);
             ViewBag.Message = "File processed successfully!";
-            //viewbag
         }
 
         private List<string> ReadTinNumbersFromExcel(string excelPath)
