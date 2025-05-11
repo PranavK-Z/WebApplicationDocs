@@ -1,0 +1,40 @@
+﻿@model WebApplicationDocs.Models.FindTheFileModel
+
+@{
+    ViewBag.Title = "FindTheFile";
+}
+
+<h2>Find The File</h2>
+
+@if (ViewBag.Message != null)
+{
+    <p style="color: green;">@ViewBag.Message</p>
+}
+
+@using (Html.BeginForm("ProcessFile", "FindTheFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div>
+       @Html.LabelFor(m => m.ClientId, "Client ID")
+       @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.DocumentType, "Document Type")
+        @Html.TextBoxFor(m => m.DocumentType, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.SourcePath, "Source Path")
+        @Html.TextBoxFor(m => m.SourcePath, new { @class = "form-control" })
+    </div>
+    <div>
+        @Html.LabelFor(m => m.DestPath, "Destination Path")
+        @Html.TextBoxFor(m => m.DestPath, new { @class = "form-control" })
+        <small style="color: gray;">Suggested Path: C:\Users\PK015725\AppData\Local\Temp\CopiedFiles  (replace "PK015725")</small>
+    </div>
+    <div>
+        @Html.LabelFor(m => m.PaymentFileNum, "Number of Payment Files")
+        @Html.TextBoxFor(m => m.PaymentFileNum, new { @class = "form-control", type = "number" })
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Process</button>
+}
+

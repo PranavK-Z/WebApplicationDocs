@@ -14,32 +14,34 @@
 @using (Html.BeginForm("ProcessFile", "FileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div>
-        @Html.LabelFor(m => m.ClientId)
+        @Html.LabelFor(m => m.ClientId, "Client Id")
         @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control" })
     </div>
     <div>
-        @Html.LabelFor(m => m.DocumentType)
+        @Html.LabelFor(m => m.DocumentType, "Document Type")
         @Html.TextBoxFor(m => m.DocumentType, new { @class = "form-control" })
     </div>
     <div>
-        @Html.LabelFor(m => m.SourcePath)
+        @Html.LabelFor(m => m.SourcePath ,"Source Path")
         @Html.TextBoxFor(m => m.SourcePath, new { @class = "form-control" })
     </div>
     <div>
-        @Html.LabelFor(m => m.DestPath)
+        @Html.LabelFor(m => m.DestPath, "Destination Path")
         @Html.TextBoxFor(m => m.DestPath, new { @class = "form-control" })
+        <small style="color: gray;">Suggested Path: C:\Users\PK015725\AppData\Local\Temp\CopiedFiles</small>
     </div>
     <div>
-        @Html.LabelFor(m => m.ReplacementSuffix)
+        @Html.LabelFor(m => m.ReplacementSuffix, "Replacement Suffix")
         @Html.TextBoxFor(m => m.ReplacementSuffix, new { @class = "form-control" })
     </div>
     <div>
-        @Html.LabelFor(m => m.PaymentFileNum)
+        @Html.LabelFor(m => m.PaymentFileNum, "Number of Payment Files")
         @Html.TextBoxFor(m => m.PaymentFileNum, new { @class = "form-control", type = "number" })
     </div>
     <div>
-        @Html.LabelFor(m => m.ExcelFile)
+        @Html.LabelFor(m => m.ExcelFile, "Excel File")
         <input type="file" name="ExcelFile" class="form-control" />
+        <small style="color: gray;">Input an Excel file with TIN Numbers (first column) at least equal to the number of payment files specified. </small>
     </div>
     <br />
     <button type="submit" class="btn btn-primary">Process</button>

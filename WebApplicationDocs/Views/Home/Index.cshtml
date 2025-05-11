@@ -1,9 +1,30 @@
-﻿@{
-    ViewBag.Title = "Welcome to WebApplicationDocs";
-}
+﻿@{  
+  ViewBag.Title = "Welcome to WebApplicationDocs";  
+}  
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="display-4 text-primary">Welcome to WebApplicationDocs</h1>
+    </div>
 
-<h2>Welcome to WebApplicationDocs</h2>
+    <div class="mt-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-dark">Find The File</h5>
+                <p class="card-text">
+                    Navigate to <strong>FindTheFile</strong> to locate the file with the given <strong>clientId</strong> and <strong>documentType</strong>.
+                </p>
+                <a href="/FindTheFile" class="btn btn-primary">Go to FindTheFile</a>
+            </div>
+        </div>
 
-<p style="font-size: 20px;">Navigate to FileProcessing</p>
-
-</p>
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title text-dark">File Processing</h5>
+                <p class="card-text">
+                    Navigate to <strong>FileProcessing</strong> to find the desired file with the given <strong>clientId</strong> and <strong>documentType</strong>, replace <strong>TIN numbers</strong> of your choice, and rename the file with your desired suffix like <strong>(P1, K1)</strong>.
+                </p>
+                <a href="/FileProcessing" class="btn btn-primary">Go to FileProcessing</a>
+            </div>
+        </div>
+    </div>
+</div>
