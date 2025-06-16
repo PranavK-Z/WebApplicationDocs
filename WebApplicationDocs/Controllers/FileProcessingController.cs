@@ -154,7 +154,7 @@ namespace WebApplicationDocs.Controllers
                 updatedLines.Add(lines[i]);
             }
 
-            System.IO.File.WriteAllLines(filePath, updatedLines, System.Text.Encoding.UTF8);
+            System.IO.File.WriteAllLines(filePath, updatedLines, System.Text.Encoding.ASCII);
             string renamedFile = Path.Combine(unzipDir, newText + ".docs");
             System.IO.File.Move(filePath, renamedFile);
 
