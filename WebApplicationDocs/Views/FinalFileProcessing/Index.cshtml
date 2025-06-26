@@ -1,17 +1,17 @@
-﻿@model WebApplicationDocs.Models.FileProcessingModel
+﻿@model WebApplicationDocs.Models.FinalFileProcessingModel
 
 @{
-    ViewBag.Title = "File Processing";
+    ViewBag.Title = "Final File Processing";
 }
 
-<h2>File Processing</h2>
+<h2>Final File Processing</h2>
 
 @if (ViewBag.Message != null)
 {
     <p style="color: green;">@ViewBag.Message</p>
 }
 
-@using (Html.BeginForm("ProcessFile", "FileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("ProcessFile", "FinalFileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div>
         @Html.LabelFor(m => m.ClientId, "Client Id")
@@ -22,7 +22,7 @@
         @Html.TextBoxFor(m => m.DocumentType, new { @class = "form-control" })
     </div>
     <div>
-        @Html.LabelFor(m => m.SourcePath ,"Source Path")
+        @Html.LabelFor(m => m.SourcePath, "Source Path")
         @Html.TextBoxFor(m => m.SourcePath, new { @class = "form-control" })
     </div>
     <div>
@@ -47,3 +47,4 @@
     <br />
     <button type="submit" class="btn btn-primary">Process</button>
 }
+
