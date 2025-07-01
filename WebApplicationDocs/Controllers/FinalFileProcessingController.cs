@@ -67,16 +67,66 @@ namespace WebApplicationDocs.Controllers
                     ZipFile.ExtractToDirectory(copiedFile, unzipDir);
 
                     string[] unZippedFiles = Directory.GetFiles(unzipDir, "*.*");
-                    string[] lines = System.IO.File.ReadAllLines(unZippedFiles[0]);
-                    string[] firstLineContent = lines[0].Split("\t");
-                    string filesDocumentType = firstLineContent[22];
+                    string[] lines = System.IO.File.ReadAllLines(unZippedFiles[0]); //choose .docs file
+                    //string[] firstLineContent = lines[0].Split("\t");
+                    //string filesDocumentType = firstLineContent[22]; //
 
-                    int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19));
+                    int[] desiredPayments = new int[0];
+                    int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19)); //First condition (write this at last)
 
-                    if (filesDocumentType == model.DocumentType && FilePaymentCount + 1 >= model.PaymentFileNum)
+                    //second condition: Counting desired payment files and checking if it is greater than or equal to the given paymentFileNum
+                    //simuttaneousy noting the valid payment file numbers
+                    Boolean isDocumentTypeMatch = false;
+                    int temp=0;
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        int  currentPayment = int.Parse(lines[i].Split("\t")[2].Substring(19));
+                        
+                        if (currentPayment > temp)  //to reset DocumentType for each payment file.
+                        {
+                            isDocumentTypeMatch = false;
+                        }
+                        
+                        Boolean hasRecord43 = false;
+                        if (lines[i].StartsWith("00") )
+                        {
+                            string[] currentDocumenttype = lines[i].Split("\t");
+                            if (currentDocumenttype.Length > 22)
+                            {
+                                if (currentDocumenttype[22] == model.DocumentType)
+                                {
+                                    isDocumentTypeMatch = true;
+                                }
+                            }    
+                        }
+                        if(lines[i].StartsWith("43")) //multiple 43records
+                        {
+                            hasRecord43 = true;
+                        }
+                        Boolean existingPayment = false;  //If a payment files has multiple 43 records this will be used to avoid duplicates
+                        if (isDocumentTypeMatch == true && hasRecord43 ==true)
+                        {
+                            for(int j = 0; j < desiredPayments.Length; j++)
+                            {
+                                if (desiredPayments[j] == currentPayment)
+                                {
+                                    existingPayment = true;
+                                   //break;
+                                }
+                            }
+                            if(existingPayment == false) {
+                                desiredPayments = desiredPayments.Append(currentPayment).ToArray();
+                            }
+                            
+                        }
+                        temp = currentPayment;
+                    }
+
+                    //if (filesDocumentType == model.DocumentType && FilePaymentCount + 1 >= model.PaymentFileNum)
+                    if ( desiredPayments.Length >= model.PaymentFileNum) //filesDocumentType == model.DocumentType &&
                     {
                         validFile = unZippedFiles[0];
-                        ProcessFile(validFile, tinNumbers, unzipDir, model.DestPath, model.PaymentFileNum, model.ReplacementSuffix);
+                        ProcessFile(validFile, tinNumbers, unzipDir, model.DestPath, model.PaymentFileNum, model.ReplacementSuffix,desiredPayments);
                         break;
                     }
                     Directory.Delete(unzipDir, true);
@@ -96,7 +146,7 @@ namespace WebApplicationDocs.Controllers
             return View("Index", model);
         }
 
-        private void ProcessFile(string filePath, List<string> tinNumbers, string unzipDir, string destPath, int paymentFileNum, string replacementSuffix)
+        private void ProcessFile(string filePath, List<string> tinNumbers, string unzipDir, string destPath, int paymentFileNum, string replacementSuffix, Array requiredPayments)
         {
             string[] lines = System.IO.File.ReadAllLines(filePath);
             string currentDate = DateTime.Now.ToString("yyyyMMdd");
@@ -112,45 +162,61 @@ namespace WebApplicationDocs.Controllers
                 ViewBag.Message = "Provided Excel file has TIn Numbers less than the given paymentFileNum ";
                 return;
             }
-
+            //add a condition to choose only the required payment files
+            
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].StartsWith("00"))
+                int currentPayment = int.Parse(lines[i].Split("\t")[2].Substring(19));
+                //if this current payment is in the required payments, then process it
+                Boolean process = false;
+                for (int j = 0; j < requiredPayments.Length; j++)
                 {
-                    if (paymentFileCount >= tinNumbers.Count || paymentFileCount >= paymentFileNum)
+                    if (currentPayment == (int)requiredPayments.GetValue(j))
                     {
-                        eraseMode = true;
+                        process = true;
+                        break;
                     }
-                    else
+                }
+                if (process ==true)
+                {
+                    if (lines[i].StartsWith("00"))
                     {
-                        paymentFileCount++;
-                        tinIndex++;
+                        if (paymentFileCount >= tinNumbers.Count || paymentFileCount >= paymentFileNum)
+                        {
+                            eraseMode = true;
+                        }
+                        else
+                        {
+                            paymentFileCount++;
+                            tinIndex++;
+                        }
                     }
-                }
-                if (eraseMode)
-                {
-                    break;
-                }
-
-                if (lines[i].StartsWith("01") && tinIndex < tinNumbers.Count)
-                {
-                    string[] fields = lines[i].Split('\t');
-                    string oldTIN = fields[55];
-                    if (string.IsNullOrEmpty(oldTIN))
+                    if (eraseMode)
                     {
-                        return;
+                        break;
                     }
-                    lines[i] = lines[i].Replace(oldTIN, tinNumbers[tinIndex]);
-                }
 
-                if (lines[i].Length >= 25)
-                {
-                    string oldText = lines[i].Substring(6, 19);
-                    newText = oldText.Substring(0, 9) + currentDate + replacementSuffix;
-                    lines[i] = lines[i].Replace(oldText, newText);
-                }
+                    if (lines[i].StartsWith("01") && tinIndex < tinNumbers.Count)
+                    {
+                        string[] fields = lines[i].Split('\t');
+                        string oldTIN = fields[55];
+                        if (string.IsNullOrEmpty(oldTIN))
+                        {
+                            return;
+                        }
+                        lines[i] = lines[i].Replace(oldTIN, tinNumbers[tinIndex]); //replace all TIN Numbers in the current payment file
+                    }
 
-                updatedLines.Add(lines[i]);
+                    if (lines[i].Length >= 25)
+                    {
+                        string oldText = lines[i].Substring(6, 19);
+                        newText = oldText.Substring(0, 9) + currentDate + replacementSuffix;
+                        lines[i] = lines[i].Replace(oldText, newText);
+                    }
+
+                    updatedLines.Add(lines[i]);
+                }
+               
             }
 
             System.IO.File.WriteAllLines(filePath, updatedLines, System.Text.Encoding.ASCII);
