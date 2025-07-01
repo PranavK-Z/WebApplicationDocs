@@ -18,8 +18,8 @@ namespace WebApplicationDocs.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Message = "Provided input is invalid.";
-                return View("Index", model);
+                TempData["Message"] = "Provided input is invalid.";
+                return RedirectToAction("Index");
             }
 
             try
@@ -30,8 +30,8 @@ namespace WebApplicationDocs.Controllers
                 string[] zipFiles = Directory.GetFiles(model.SourcePath, $"{model.ClientId}*.zip");//client... .zip//change
                 if (zipFiles.Length == 0)
                 {
-                    ViewBag.Message = $"Files for {model.ClientId} not found.";
-                    return View("Index", model);
+                    TempData["Message"] = $"Files for {model.ClientId} not found.";
+                    return RedirectToAction("Index");
                 }
 
                 string validFile = null;
@@ -69,7 +69,7 @@ namespace WebApplicationDocs.Controllers
 
                         // Clean up the temporary directory
                         Directory.Delete(tempDir, true);
-                        ViewBag.Message = $"{model.ClientId} Files with document type {model.DocumentType} and number of payment files more than {model.PaymentFileNum} is pasted at {model.DestPath}.";
+                        TempData["Message"] = $"{model.ClientId} Files with document type {model.DocumentType} and number of payment files more than {model.PaymentFileNum} is pasted at {model.DestPath}.";
                         break;
                         //1.Path.GetFileName(validFile): Extracts the file name(e.g., example.txt) from the validFile path.
                         //2.Path.Combine(model.DestPath, ...): Combines the destination directory(model.DestPath) with the file name to create the full destination file path.
@@ -82,16 +82,16 @@ namespace WebApplicationDocs.Controllers
 
                 if (validFile == null)
                 {
-                    ViewBag.Message = $"{model.ClientId} Files with document type {model.DocumentType} not found.";
+                    TempData["Message"] = $"{model.ClientId} Files with document type {model.DocumentType} not found.";
                 }
 
             }
             catch (Exception ex)
             {
-                ViewBag.Message = "Error: " + ex.Message;
+                TempData["Message"] = "Error: " + ex.Message;
             }
 
-            return View("Index", model);
+            return RedirectToAction("Index");
         }
 
     }

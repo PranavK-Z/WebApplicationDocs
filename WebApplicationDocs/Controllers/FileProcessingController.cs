@@ -23,8 +23,8 @@ namespace WebApplicationDocs.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Message = "Provided input is invalid.";
-                return View("Index", model);
+                TempData["Message"] = "Provided input is invalid."; 
+                return RedirectToAction("Index");
             }
 
             try
@@ -37,8 +37,8 @@ namespace WebApplicationDocs.Controllers
 
                 if (!System.IO.File.Exists(excelPath))
                 {
-                    ViewBag.Message = "Invalid Excel file.";
-                    return View("Index", model);
+                    TempData["Message"] = "Invalid Excel file.";
+                    return RedirectToAction("Index");
                 }
 
                 Directory.CreateDirectory(model.DestPath);
@@ -46,15 +46,15 @@ namespace WebApplicationDocs.Controllers
                 string[] zipFiles = Directory.GetFiles(model.SourcePath, $"{model.ClientId}*.zip");
                 if (zipFiles.Length == 0)
                 {
-                    ViewBag.Message = $"Files for {model.ClientId} not found.";
-                    return View("Index", model);
+                    TempData["Message"] = $"Files for {model.ClientId} not found.";
+                    return RedirectToAction("Index");
                 }
 
                 List<string> tinNumbers = ReadTinNumbersFromExcel(excelPath);
                 if (tinNumbers.Count == 0)
                 {
-                    ViewBag.Message = "No TIN Numbers found.";
-                    return View("Index", model);
+                    TempData["Message"] = "No TIN Numbers found.";
+                    return RedirectToAction("Index");
                 }
 
                 string validFile = null;
@@ -85,16 +85,16 @@ namespace WebApplicationDocs.Controllers
 
                 if (validFile == null)
                 {
-                    ViewBag.Message = $"{model.ClientId} Files with document type {model.DocumentType} not found.";
+                    TempData["Message"] = $"{model.ClientId} Files with document type {model.DocumentType} not found.";
                 }
               
             }
             catch (Exception ex)
             {
-                ViewBag.Message = "Error: " + ex.Message;
+                TempData["Message"] = "Error: " + ex.Message;
             }
 
-            return View("Index", model);
+            return RedirectToAction("Index");
         }
 
         private void ProcessFile(string filePath, List<string> tinNumbers, string unzipDir, string destPath, int paymentFileNum, string replacementSuffix)
@@ -110,7 +110,7 @@ namespace WebApplicationDocs.Controllers
 
             if (tinNumbers.Count < paymentFileNum)
             {
-                ViewBag.Message = "Provided Excel file has TIn Numbers less than the given paymentFileNum ";
+                TempData["Message"] = "Provided Excel file has TIn Numbers less than the given paymentFileNum ";
                 return;
             }
 
@@ -162,7 +162,7 @@ namespace WebApplicationDocs.Controllers
             ZipFile.CreateFromDirectory(unzipDir, newZipFile);
 
             Directory.Delete(unzipDir, true);
-            ViewBag.Message = "File processed successfully!";
+            TempData["Message"] = "File processed successfully!";
         }
 
         private List<string> ReadTinNumbersFromExcel(string excelPath)
@@ -191,7 +191,7 @@ namespace WebApplicationDocs.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.Message = "Error reading Excel file: " + ex.Message;
+                TempData["Message"] = "Error reading Excel file: " + ex.Message;
             }
 
             return tinNumbers;

@@ -6,9 +6,9 @@
 
 <h2>Find The File</h2>
 
-@if (ViewBag.Message != null)
+@if (TempData["Message"] != null)
 {
-    <p style="color: green;">@ViewBag.Message</p>
+    <p id="statusMessage" style="color: green;">@TempData["Message"]</p>
 }
 
 @using (Html.BeginForm("ProcessFile", "FindTheFile", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -38,3 +38,14 @@
     <button type="submit" class="btn btn-primary">Process</button>
 }
 
+@section Scripts {
+    <script>
+
+        setTimeout(function() {
+            var msg = document.getElementById('statusMessage');
+            if (msg) {
+                msg.style.display = 'none';
+            }
+        }, 4000);
+    </script>
+}

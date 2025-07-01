@@ -5,10 +5,9 @@
 }
 
 <h2>Final File Processing</h2>
-
-@if (ViewBag.Message != null)
+@if (TempData["Message"] != null)
 {
-    <p style="color: green;">@ViewBag.Message</p>
+    <p id="statusMessage1" style="color: green;">@TempData["Message"]</p>
 }
 
 @using (Html.BeginForm("ProcessFile", "FinalFileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -48,3 +47,14 @@
     <button type="submit" class="btn btn-primary">Process</button>
 }
 
+@section Scripts {
+    <script>
+        
+        setTimeout(function() {
+            var msg = document.getElementById('statusMessage1');
+            if (msg) {
+                msg.style.display = 'none';
+            }
+        }, 4000); 
+    </script>
+}
