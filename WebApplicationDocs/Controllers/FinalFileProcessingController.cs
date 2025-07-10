@@ -56,6 +56,12 @@ namespace WebApplicationDocs.Controllers
                     return RedirectToAction("Index");
                 }
 
+                if (tinNumbers.Count < model.PaymentFileNum)////
+                {
+                    TempData["Message"] = "Please add Sufficient TIN numbers as per the payment file requested";
+                    return RedirectToAction("Index");
+                }
+
                 string validFile = null;
                 foreach (var file in zipFiles.OrderByDescending(f => System.IO.File.GetCreationTime(f)))
                 {
@@ -162,8 +168,8 @@ namespace WebApplicationDocs.Controllers
                 TempData["Message"] = "Provided Excel file has TIn Numbers less than the given paymentFileNum ";
                 return;
             }
-            //add a condition to choose only the required payment files
             
+            string oldTIN = string.Empty;
             for (int i = 0; i < lines.Length; i++)
             {
                 int currentPayment = int.Parse(lines[i].Split("\t")[2].Substring(19));
@@ -177,6 +183,7 @@ namespace WebApplicationDocs.Controllers
                         break;
                     }
                 }
+                
                 if (process ==true)
                 {
                     if (lines[i].StartsWith("00"))
@@ -188,23 +195,30 @@ namespace WebApplicationDocs.Controllers
                         else
                         {
                             paymentFileCount++;
-                            tinIndex++;
+                            tinIndex++;//
                         }
                     }
                     if (eraseMode)
                     {
                         break;
                     }
-
-                    if (lines[i].StartsWith("01") && tinIndex < tinNumbers.Count)
+                   
+                    if (lines[i].StartsWith("01"))
                     {
                         string[] fields = lines[i].Split('\t');
-                        string oldTIN = fields[55];
+                        oldTIN = fields[55];
                         if (string.IsNullOrEmpty(oldTIN))
                         {
-                            return;
+                            throw new InvalidOperationException("TIN number not found.");   
                         }
-                        lines[i] = lines[i].Replace(oldTIN, tinNumbers[tinIndex]); //replace all TIN Numbers in the current payment file
+                    }
+
+                    if (!lines[i].StartsWith("00") && tinIndex < tinNumbers.Count)
+                    {
+                        if(!string.IsNullOrEmpty(oldTIN))
+                        {
+                            lines[i] = lines[i].Replace(oldTIN, tinNumbers[tinIndex]); //oldTIN ni tinNumbers[] tho replace cheyali 
+                        }      
                     }
 
                     if (lines[i].Length >= 25)
