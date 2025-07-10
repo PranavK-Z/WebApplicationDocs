@@ -1,17 +1,16 @@
-﻿@model WebApplicationDocs.Models.FileProcessingModel
+﻿@model WebApplicationDocs.Models.SFinalFileProcessingModel
 
 @{
-    ViewBag.Title = "File Processing";
+    ViewBag.Title = "SFinal File Processing";
 }
 
-<h2>File Processing</h2>
-
+<h2>S-Final File Processing</h2>
 @if (TempData["Message"] != null)
 {
-    <p id="statusMessage" style="color: green;">@TempData["Message"]</p>
+    <p id="statusMessage1" style="color: green;">@TempData["Message"]</p>
 }
 
-@using (Html.BeginForm("ProcessFile", "FileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("ProcessFile", "SFinalFileProcessing", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     <div>
         @Html.LabelFor(m => m.ClientId, "Client Id")
@@ -22,7 +21,7 @@
         @Html.TextBoxFor(m => m.DocumentType, new { @class = "form-control" })
     </div>
     <div>
-        @Html.LabelFor(m => m.SourcePath ,"Source Path")
+        @Html.LabelFor(m => m.SourcePath, "Source Path")
         @Html.TextBoxFor(m => m.SourcePath, new { @class = "form-control" })
     </div>
     <div>
@@ -50,12 +49,12 @@
 
 @section Scripts {
     <script>
-
+        
         setTimeout(function() {
-            var msg = document.getElementById('statusMessage');
+            var msg = document.getElementById('statusMessage1');
             if (msg) {
                 msg.style.display = 'none';
             }
-        }, 7000);
+        }, 7000); 
     </script>
 }
