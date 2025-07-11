@@ -79,7 +79,10 @@ namespace WebApplicationDocs.Controllers
 
                     int[] desiredPayments = new int[0];
                     int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19)); //First condition (write this at last)
-
+                    if (FilePaymentCount <model.PaymentFileNum)//add documenttype condition too
+                    {
+                        continue; //Skip this file if the payment file count is less than the required payment file number
+                    }
                     //second condition: Counting desired payment files and checking if it is greater than or equal to the given paymentFileNum
                     //simuttaneousy noting the valid payment file numbers
                     Boolean isDocumentTypeMatch = false;
