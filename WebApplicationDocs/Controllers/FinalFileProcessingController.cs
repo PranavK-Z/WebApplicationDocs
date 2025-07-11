@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,10 @@ namespace WebApplicationDocs.Controllers
         {
             return View();
         }
+
+        private static string baseDirectory = @"C:\TrackedFiles"; // Your folder
+        private static string logFileName = $"UsedFiles_{DateTime.Now:yyyy-MM-dd}.xlsx";
+        private static string logFilePath = System.IO.Path.Combine(baseDirectory, logFileName);
 
         [HttpPost]
         public ActionResult ProcessFile(FinalFileProcessingModel model)
@@ -63,6 +68,8 @@ namespace WebApplicationDocs.Controllers
                 }
 
                 string validFile = null;
+                HashSet<string> usedFiles = LoadUsedFiles();
+
                 foreach (var file in zipFiles.OrderByDescending(f => System.IO.File.GetCreationTime(f)))
                 {
                     string copiedFile = Path.Combine(Path.GetTempPath(), Path.GetFileName(file));
@@ -76,13 +83,26 @@ namespace WebApplicationDocs.Controllers
                     string[] lines = System.IO.File.ReadAllLines(unZippedFiles[0]); //choose .docs file
                     //string[] firstLineContent = lines[0].Split("\t");
                     //string filesDocumentType = firstLineContent[22]; //
-
+                    string oldText = lines[0].Substring(6, 19);
                     int[] desiredPayments = new int[0];
-                    int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19)); //First condition (write this at last)
+                    int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19)); 
+
+                    if (usedFiles.Contains(oldText))
+                    {
+                        Console.WriteLine($"Skipping: {oldText} already used today.");
+                        continue;
+                    }
+                    //First condition (write this at last)
                     if (FilePaymentCount <model.PaymentFileNum)//add documenttype condition too
                     {
                         continue; //Skip this file if the payment file count is less than the required payment file number
                     }
+                    //code for checking in Excel if not in Excel the Adding in else part
+                    
+                    //else
+                    //{
+                    //    SaveFileToLog(oldText);
+                    //}
                     //second condition: Counting desired payment files and checking if it is greater than or equal to the given paymentFileNum
                     //simuttaneousy noting the valid payment file numbers
                     Boolean isDocumentTypeMatch = false;
@@ -136,6 +156,7 @@ namespace WebApplicationDocs.Controllers
                     {
                         validFile = unZippedFiles[0];
                         ProcessFile(validFile, tinNumbers, unzipDir, model.DestPath, model.PaymentFileNum, model.ReplacementSuffix,desiredPayments);
+                        SaveFileToLog(oldText);
                         break;
                     }
                     Directory.Delete(unzipDir, true);
@@ -278,5 +299,52 @@ namespace WebApplicationDocs.Controllers
 
             return tinNumbers;
         }
+
+        private static HashSet<string> LoadUsedFiles()
+        {
+            var usedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (!System.IO.File.Exists(logFilePath))
+                return usedFiles;
+
+            using (var workbook = new XLWorkbook(logFilePath))
+            {
+                var ws = workbook.Worksheet(1);
+                foreach (var row in ws.RowsUsed())
+                {
+                    var value = row.Cell(1).GetValue<string>();
+                    if (!string.IsNullOrWhiteSpace(value))
+                        usedFiles.Add(value.Trim());
+                }
+            }
+
+            return usedFiles;
+        }
+
+        private static void SaveFileToLog(string fileName)
+        {
+            XLWorkbook workbook;
+            IXLWorksheet worksheet;
+
+            if (System.IO.File.Exists(logFilePath))
+            {
+                workbook = new XLWorkbook(logFilePath);
+                worksheet = workbook.Worksheet(1);
+            }
+            else
+            {
+                Directory.CreateDirectory(baseDirectory);
+                workbook = new XLWorkbook();
+                worksheet = workbook.AddWorksheet("UsedFiles");
+                worksheet.Cell(1, 1).Value = "FileName";
+            }
+
+            // Add to next available row
+            int lastRow = worksheet.LastRowUsed().RowNumber();
+            worksheet.Cell(lastRow + 1, 1).Value = fileName;
+
+            workbook.SaveAs(logFilePath);
+        }
+
     }
 }
