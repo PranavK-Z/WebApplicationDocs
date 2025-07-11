@@ -88,7 +88,6 @@ namespace WebApplicationDocs.Controllers
                     string oldText = lines[0].Substring(6, 19);//old filename
                     if (newFileName.Equals(""))
                     {
-
                         string currentDate = DateTime.Now.ToString("yyyyMMdd");
                         newFileName = oldText.Substring(0, 9) + currentDate + model.ReplacementSuffix;
                     }
@@ -131,9 +130,9 @@ namespace WebApplicationDocs.Controllers
                             break;
                         }
                         int lastindex = 0;
-                        if (i == validPaymentCount)
+                        if (i == (validPaymentCount-1))
                         {
-                            lastindex = paymentFileCountWithIndex.GetValueOrDefault(lines.Length) - 1;
+                            lastindex = lines.Length - 1;
                         }
                         else
                         {
@@ -209,7 +208,7 @@ namespace WebApplicationDocs.Controllers
                     return;
                 }
 
-                for (int i = 0; i <= actualValidPaymentFiles; i++)
+                for (int i = 0; i < actualValidPaymentFiles; i++)
                 {
                     if (userDemandedPaymentFileCount == (counter - 1))
                     {
