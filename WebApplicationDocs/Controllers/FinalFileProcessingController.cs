@@ -93,7 +93,7 @@ namespace WebApplicationDocs.Controllers
                         continue;
                     }
                     //First condition (write this at last)
-                    if (FilePaymentCount <model.PaymentFileNum)//add documenttype condition too
+                    if (FilePaymentCount < model.PaymentFileNum)//add documenttype condition too
                     {
                         continue; //Skip this file if the payment file count is less than the required payment file number
                     }
@@ -119,10 +119,10 @@ namespace WebApplicationDocs.Controllers
                         Boolean hasRecord43 = false;
                         if (lines[i].StartsWith("00") )
                         {
-                            string[] currentDocumenttype = lines[i].Split("\t");
-                            if (currentDocumenttype.Length > 22)
+                            string[] currentDocumenttypeRecipientType = lines[i].Split("\t");
+                            if (currentDocumenttypeRecipientType.Length > 22)
                             {
-                                if (currentDocumenttype[22] == model.DocumentType)
+                                if (currentDocumenttypeRecipientType[22] == model.DocumentType && currentDocumenttypeRecipientType[21] == model.RecipientType)
                                 {
                                     isDocumentTypeMatch = true;
                                 }

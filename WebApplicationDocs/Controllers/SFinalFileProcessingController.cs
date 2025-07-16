@@ -120,14 +120,16 @@ namespace WebApplicationDocs.Controllers
                         Boolean isDocumentTypeIsValid = false;
                         int firstindex = paymentFileCountWithIndex.GetValueOrDefault(i);
                         string[] firstindexLineContent = lines[firstindex].Split("\t");
-                        string paymentfileDocumentType = firstLineContent[22];
-                        if (model.DocumentType == paymentfileDocumentType)
+
+                        string paymentfileDocumentType = firstindexLineContent[22];
+                        string paymentfileRecipientType = firstindexLineContent[21];
+                        if (model.DocumentType == paymentfileDocumentType && model.RecipientType == paymentfileRecipientType )
                         {
                             isDocumentTypeIsValid = true;
                         }
                         else
                         {
-                            break;
+                            continue;
                         }
                         int lastindex = 0;
                         if (i == (validPaymentCount-1))

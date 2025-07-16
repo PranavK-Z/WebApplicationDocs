@@ -9,7 +9,8 @@ namespace WebApplicationDocs.Models
 
         [Required]
         public string ClientId { get; set; }
-
+        [Required]
+        public string RecipientType { get; set; }
         [Required]
         [StringLength(3, MinimumLength = 3, ErrorMessage = "Document type must be exactly 3 characters.")]
         public string DocumentType { get; set; }

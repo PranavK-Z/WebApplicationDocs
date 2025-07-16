@@ -18,6 +18,15 @@
        @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control" })
     </div>
     <div>
+        @Html.LabelFor(m => m.RecipientType, "Recipient Type")
+        @Html.DropDownListFor(
+        m => m.RecipientType,
+        new SelectList(new[] { "P", "I" }),
+        "Select Recipient Type",
+        new { @class = "form-control" }
+        )
+    </div>
+    <div>
         @Html.LabelFor(m => m.DocumentType, "Document Type")
         @Html.TextBoxFor(m => m.DocumentType, new { @class = "form-control" })
     </div>

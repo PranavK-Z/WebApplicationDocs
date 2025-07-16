@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using WebApplicationDocs.Models;
@@ -48,10 +49,11 @@ namespace WebApplicationDocs.Controllers
                     string[] lines = System.IO.File.ReadAllLines(unZippedFiles[0]);
                     string[] firstLineContent = lines[0].Split("\t");
                     string filesDocumentType = firstLineContent[22];
+                    String fileRecipientType = firstLineContent[21];
 
                     int FilePaymentCount = int.Parse(lines[lines.Length - 1].Split("\t")[2].Substring(19));
 
-                    if (filesDocumentType == model.DocumentType && FilePaymentCount + 1 >= model.PaymentFileNum)
+                    if (filesDocumentType == model.DocumentType && fileRecipientType == model.RecipientType && FilePaymentCount + 1 >= model.PaymentFileNum)
                     {
                         validFile = unZippedFiles[0];
                         
